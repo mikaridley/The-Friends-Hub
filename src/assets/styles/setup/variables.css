@@ -1,0 +1,24 @@
+:root {
+  /* layout */
+  --max-width:1420px;
+  --margin-inline:100px;
+
+/* spacing */
+  --related-elements-space: 5rem;
+  --unrelated-elements-space: 12.5rem;
+  --beginning-of-section: 12.5rem;
+  --end-of-section: 25rem;
+  --header-to-subheader: 5rem;
+  --subheader-to-paragraph: 1.5rem;
+
+  /* colors */
+  --prime-bg: #1e293b;
+  --sec-bg: #f1f5f9;
+  --prime-text: #0f172a;
+  --sec-text: #475569;
+  --light-text: #f8fafc;
+  --prime-accent-300: #94a3b8;
+  --prime-accent-500: #64748b;
+  --sec-accent-300: #cbd5e1;
+  --sec-accent-500: #94a3b8;
+}
