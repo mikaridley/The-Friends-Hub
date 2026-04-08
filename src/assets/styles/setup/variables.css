@@ -21,4 +21,12 @@
   --prime-accent-500: #64748b;
   --sec-accent-300: #cbd5e1;
   --sec-accent-500: #94a3b8;
+
+  /* Elias teams */
+  --clr-team-red: #b91c1c;
+  --clr-team-red-muted: #fecaca;
+  --clr-team-blue: #1d4ed8;
+  --clr-team-blue-muted: #bfdbfe;
+  --clr-elias-surface: #f8fafc;
+  --clr-elias-border: #e2e8f0;
 }
