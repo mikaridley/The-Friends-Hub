@@ -21,5 +21,5 @@ const io = new Server(httpServer, {
 registerEliasSocket(io, { HEBREW_WORDS })
 
 httpServer.listen(PORT, () => {
-  console.log(`Elias server http://localhost:${PORT}`)
+  console.log(`Elias server listening on port ${PORT}`)
 })

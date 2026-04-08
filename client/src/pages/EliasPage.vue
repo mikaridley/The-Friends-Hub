@@ -2,13 +2,23 @@
   <div class="elias-page" :class="gameBackdropClass">
     <p v-if="errorMsg" class="elias-page__error" role="alert">{{ errorMsg }}</p>
     <p v-if="connectError" class="elias-page__error">
-      לא ניתן להתחבר לשרת. הרץ את השרת במקביל ל־Vite:
-      <code>npm run dev:full</code>
-      או בשני חלונות:
-      <code>npm run server</code>
-      ו־
-      <code>npm run dev</code>
-      .
+      <template v-if="isProd">
+        לא ניתן להתחבר לשרת ה־API. ב־Render: בשירות ה־Static Site הגדר משתנה סביבה
+        <code>VITE_SOCKET_URL</code>
+        לכתובת ה־Web Service (למשל <code>https://שם-השרת.onrender.com</code>), שמור ובצע
+        <strong>Deploy</strong>
+        מחדש. בשרת: <code>CORS_ORIGIN</code>
+        חייב לכלול את כתובת האתר הסטטי (כולל <code>https://</code>).
+      </template>
+      <template v-else>
+        לא ניתן להתחבר לשרת. הרץ את השרת במקביל ל־Vite:
+        <code>npm run dev:full</code>
+        או בשני חלונות:
+        <code>npm run server</code>
+        ו־
+        <code>npm run dev</code>
+        .
+      </template>
     </p>
 
     <section v-if="step === 'name'" class="elias-page__panel" dir="rtl">
@@ -93,6 +103,8 @@ function onReturnToLobby() {
 }
 
 provide('eliasReturnToLobby', onReturnToLobby)
+
+const isProd = import.meta.env.PROD
 
 const isMaster = computed(() => {
   const p = room.value?.players?.find((x) => x.id === playerId.value)

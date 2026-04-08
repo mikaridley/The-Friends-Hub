@@ -13,7 +13,7 @@ import { ref, computed } from 'vue'
 import Header from './cmps/Header.vue'
 import EliasPage from './pages/EliasPage.vue'
 
-const siteName = ref("My Website")
+const siteName = ref("The Friends Hub")
 const pages = ref(["Elias"])
 const currentPageIndex = ref(0)
 const currentPageComponent = computed(() => [EliasPage][currentPageIndex.value])
