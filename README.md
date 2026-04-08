@@ -80,6 +80,25 @@ docker compose up server
 
 Runs the API in a container; run the client with `npm run dev` on the host, or extend the compose file to add a `client` service.
 
+## Deploy (Render) — static site build
+
+For the **Static Site** service (root directory `client`):
+
+1. **Node version:** use **20.x** (see `client/.nvmrc`). In Render: **Environment** → add `NODE_VERSION` = `20` if the dashboard offers it, or pick Node 20 in the service settings.
+2. **Build command:** use `npm install && npm run build` (not `npm ci` unless your lockfile was generated on Linux).
+3. **Publish directory:** `dist`.
+
+If the build fails with **`MODULE_NOT_FOUND`** in `rollup/dist/native.js`, the lockfile was usually produced on **Windows** without Linux Rollup optional binaries. Fix options:
+
+- **Clear build cache** on Render and redeploy after setting Node 20 + the build command above.
+- **Regenerate the lockfile on Linux** (one-time), then commit and push:
+
+  ```bash
+  docker run --rm -v "${PWD}:/app" -w /app node:20-bookworm bash -c "npm install"
+  ```
+
+  (Run from the repo root; this refreshes `package-lock.json` for Linux-friendly optional deps.)
+
 ## License
 
 Private project.
