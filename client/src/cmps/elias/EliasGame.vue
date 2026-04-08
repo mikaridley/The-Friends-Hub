@@ -46,7 +46,7 @@
 
         <div v-if="game.phase === 'finished'" class="elias-game__winner">
           <p class="elias-game__winner-text">
-            ניצחה הקבוצה {{ winnerLabel }}!
+           הקבוצה {{ winnerLabel }} ניצחה!
           </p>
           <button
             v-if="isMaster"
