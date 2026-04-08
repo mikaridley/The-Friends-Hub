@@ -29,4 +29,8 @@
   --clr-team-blue-muted: #bfdbfe;
   --clr-elias-surface: #f8fafc;
   --clr-elias-border: #e2e8f0;
+  /* Full-screen turn tint (Elias in-game) */
+  --clr-turn-bg-red: #ffe4e8;
+  --clr-turn-bg-blue: #dbeafe;
+  --clr-turn-bg-finished: #f4f4f5;
 }

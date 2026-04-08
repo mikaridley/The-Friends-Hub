@@ -1,5 +1,5 @@
 <template>
-  <div class="elias-page">
+  <div class="elias-page" :class="gameBackdropClass">
     <p v-if="errorMsg" class="elias-page__error" role="alert">{{ errorMsg }}</p>
     <p v-if="connectError" class="elias-page__error">
       לא ניתן להתחבר לשרת. הרץ את השרת במקביל ל־Vite:
@@ -49,6 +49,7 @@
       v-else-if="step === 'room' && room?.game"
       :room="room"
       :player-id="playerId"
+      :is-master="isMaster"
       :secret-word="secretWord"
       @start-turn="onStartTurn"
       @word-result="onWordResult"
@@ -57,7 +58,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, provide, ref } from 'vue'
 import { createEliasSocket } from '../services/eliasSocket.js'
 import EliasLobby from '../cmps/elias/EliasLobby.vue'
 import EliasGame from '../cmps/elias/EliasGame.vue'
@@ -74,6 +75,38 @@ const room = ref(null)
 const playerId = ref('')
 const secretWord = ref('')
 const errorMsg = ref('')
+
+function onReturnToLobby() {
+  const payload = {
+    code: room.value?.code,
+    playerId: playerId.value,
+    guestId: guestId.value,
+  }
+  const send = () => socket.emit('elias_return_to_lobby', payload)
+  if (socket.connected) {
+    send()
+    return
+  }
+  errorMsg.value = 'מתחבר לשרת…'
+  socket.once('connect', send)
+  socket.connect()
+}
+
+provide('eliasReturnToLobby', onReturnToLobby)
+
+const isMaster = computed(() => {
+  const p = room.value?.players?.find((x) => x.id === playerId.value)
+  return !!p?.isMaster
+})
+
+const gameBackdropClass = computed(() => {
+  if (step.value !== 'room' || !room.value?.game) return {}
+  const g = room.value.game
+  if (g.phase === 'finished') return { 'elias-page--bg-finished': true, 'elias-page--in-game': true }
+  if (g.phase === 'playing' && g.currentTeam === 'red') return { 'elias-page--turn-red': true, 'elias-page--in-game': true }
+  if (g.phase === 'playing' && g.currentTeam === 'blue') return { 'elias-page--turn-blue': true, 'elias-page--in-game': true }
+  return { 'elias-page--in-game': true }
+})
 
 function ensureGuestId() {
   let gid = localStorage.getItem('elias-guest-id')
@@ -179,14 +212,24 @@ function onStartTurn() {
 function onWordResult(result) {
   socket.emit('turn:word', { result })
 }
+
 </script>
 
 <style scoped>
 .elias-page {
+  position: relative;
   display: grid;
   gap: 1rem;
   max-width: 56rem;
   margin-inline: auto;
+  transition: background-color 0.35s ease;
+
+  &.elias-page--in-game {
+    max-width: min(92rem, 100%);
+    padding-inline: 0.75rem;
+    padding-block: 0.5rem;
+    min-height: calc(100dvh - 7rem);
+  }
 }
 
 .elias-page__error {

@@ -19,6 +19,24 @@ const currentPageIndex = ref(0)
 const currentPageComponent = computed(() => [EliasPage][currentPageIndex.value])
 </script>
 
+<style>
+/* Elias: full-viewport turn tint when the game view sets classes on the page root */
+.app:has(.elias-page--turn-red) {
+  background-color: var(--clr-turn-bg-red);
+  transition: background-color 0.35s ease;
+}
+
+.app:has(.elias-page--turn-blue) {
+  background-color: var(--clr-turn-bg-blue);
+  transition: background-color 0.35s ease;
+}
+
+.app:has(.elias-page--bg-finished) {
+  background-color: var(--clr-turn-bg-finished);
+  transition: background-color 0.35s ease;
+}
+</style>
+
 <style scoped>
 .app {
   display: grid;
