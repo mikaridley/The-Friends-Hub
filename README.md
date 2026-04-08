@@ -88,16 +88,14 @@ For the **Static Site** service (root directory `client`):
 2. **Build command:** use `npm install && npm run build` (not `npm ci` unless your lockfile was generated on Linux).
 3. **Publish directory:** `dist`.
 
-If the build fails with **`MODULE_NOT_FOUND`** in `rollup/dist/native.js`, the lockfile was usually produced on **Windows** without Linux Rollup optional binaries. Fix options:
+If the build fails with **`MODULE_NOT_FOUND`** for `@rollup/rollup-linux-x64-gnu`, that is [npm optional-deps + Rollup](https://github.com/npm/cli/issues/4828) on Linux CI. This repo pins **`@rollup/rollup-linux-x64-gnu`** in the **root** `package.json` under `optionalDependencies` so Linux installs get the native binary while Windows/mac dev installs skip it safely.
 
-- **Clear build cache** on Render and redeploy after setting Node 20 + the build command above.
-- **Regenerate the lockfile on Linux** (one-time), then commit and push:
+If it still fails on Render:
 
-  ```bash
-  docker run --rm -v "${PWD}:/app" -w /app node:20-bookworm bash -c "npm install"
-  ```
-
-  (Run from the repo root; this refreshes `package-lock.json` for Linux-friendly optional deps.)
+- Deploy from the **monorepo root** (where the root `package.json` lives), not a subfolder that omits it.
+- **Clear build cache** and redeploy.
+- Use **Build command:** `npm install && npm run build` (root), or for workspace-only: `npm install && npm run build --workspace=client`.
+- Prefer **Node 20** (`NODE_VERSION=20` or `client/.nvmrc`).
 
 ## License
 
