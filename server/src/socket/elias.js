@@ -12,7 +12,7 @@ export function registerEliasSocket(io, { HEBREW_WORDS }) {
     return {
       id: crypto.randomUUID(),
       socketId,
-      name: String(name || 'שחקן').slice(0, 32),
+      name: String(name || 'Player').slice(0, 32),
       guestId: guestId || null,
       team: null,
       isMaster: !!isMaster,
@@ -228,12 +228,12 @@ export function registerEliasSocket(io, { HEBREW_WORDS }) {
       const upper = String(code || '').trim().toUpperCase()
       const room = rooms.get(upper)
       if (!room) {
-        if (typeof cb === 'function') cb({ ok: false, error: 'חדר לא נמצא' })
-        return emitError(socket, 'חדר לא נמצא')
+        if (typeof cb === 'function') cb({ ok: false, error: 'Room not found' })
+        return emitError(socket, 'Room not found')
       }
       if (room.game.phase !== 'lobby') {
-        if (typeof cb === 'function') cb({ ok: false, error: 'המשחק כבר התחיל' })
-        return emitError(socket, 'המשחק כבר התחיל')
+        if (typeof cb === 'function') cb({ ok: false, error: 'Game already started' })
+        return emitError(socket, 'Game already started')
       }
       const existing = findPlayer(room, socket.id)
       if (existing) {
@@ -262,7 +262,7 @@ export function registerEliasSocket(io, { HEBREW_WORDS }) {
       const { room } = findRoomBySocket(socket.id)
       if (!room || room.game.phase !== 'lobby') return
       const master = findPlayer(room, socket.id)
-      if (!master?.isMaster) return emitError(socket, 'רק המנהל יכול')
+      if (!master?.isMaster) return emitError(socket, 'Only the host can do that')
       const ps = [...room.players]
       for (let i = ps.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
@@ -280,7 +280,7 @@ export function registerEliasSocket(io, { HEBREW_WORDS }) {
       const { room } = findRoomBySocket(socket.id)
       if (!room || room.game.phase !== 'lobby') return
       const master = findPlayer(room, socket.id)
-      if (!master?.isMaster) return emitError(socket, 'רק המנהל יכול')
+      if (!master?.isMaster) return emitError(socket, 'Only the host can do that')
       if (typeof turnSeconds === 'number' && turnSeconds >= 10 && turnSeconds <= 600) {
         room.settings.turnSeconds = Math.floor(turnSeconds)
       }
@@ -294,11 +294,11 @@ export function registerEliasSocket(io, { HEBREW_WORDS }) {
       const { room } = findRoomBySocket(socket.id)
       if (!room) return
       const master = findPlayer(room, socket.id)
-      if (!master?.isMaster) return emitError(socket, 'רק המנהל יכול')
+      if (!master?.isMaster) return emitError(socket, 'Only the host can do that')
       const reds = getTeamMembers(room, 'red')
       const blues = getTeamMembers(room, 'blue')
       if (reds.length === 0 || blues.length === 0) {
-        return emitError(socket, 'צריך לפחות שחקן אחד בכל קבוצה')
+        return emitError(socket, 'Need at least one player on each team')
       }
       room.game = defaultGame()
       room.game.phase = 'playing'
@@ -314,7 +314,7 @@ export function registerEliasSocket(io, { HEBREW_WORDS }) {
       const { room } = findRoomBySocket(socket.id)
       if (!room || room.game.phase !== 'playing') return
       const p = findPlayer(room, socket.id)
-      if (!p || p.id !== room.game.clueGiverId) return emitError(socket, 'לא תורך')
+      if (!p || p.id !== room.game.clueGiverId) return emitError(socket, 'Not your turn')
       if (room.game.turnPhase !== 'awaiting_start') return
       const { word, id } = nextWord(room)
       room.game.usedWordIds.push(id)
@@ -328,9 +328,9 @@ export function registerEliasSocket(io, { HEBREW_WORDS }) {
 
     socket.on('elias_return_to_lobby', (payload = {}) => {
       const { room, player } = resolveRoomAndPlayer(socket, payload)
-      if (!room) return emitError(socket, 'חדר לא נמצא')
-      if (!player?.isMaster) return emitError(socket, 'רק המנהל יכול')
-      if (room.game.phase !== 'finished') return emitError(socket, 'רק אחרי סיום משחק')
+      if (!room) return emitError(socket, 'Room not found')
+      if (!player?.isMaster) return emitError(socket, 'Only the host can do that')
+      if (room.game.phase !== 'finished') return emitError(socket, 'Only after the game has finished')
       clearTurnTimer(room)
       room.game = defaultGame()
       broadcastRoom(room)

@@ -1,51 +1,50 @@
 <template>
   <div class="elias-page" :class="gameBackdropClass">
-    <p v-if="errorMsg" class="elias-page__error" role="alert">{{ errorMsg }}</p>
+    <p v-if="errorMsg" class="elias-page__error" role="alert" dir="ltr" lang="en">{{ errorMsg }}</p>
     <p v-if="connectError" class="elias-page__error">
       <template v-if="isProd">
-        לא ניתן להתחבר לשרת ה־API. ב־Render: בשירות ה־Static Site הגדר משתנה סביבה
+        Cannot reach the API server. On Render: in your <strong>Static Site</strong>, set
         <code>VITE_SOCKET_URL</code>
-        לכתובת ה־Web Service (למשל <code>https://שם-השרת.onrender.com</code>), שמור ובצע
-        <strong>Deploy</strong>
-        מחדש. בשרת: <code>CORS_ORIGIN</code>
-        חייב לכלול את כתובת האתר הסטטי (כולל <code>https://</code>).
+        to your <strong>Web Service</strong> URL (e.g. <code>https://your-api.onrender.com</code>), save, and
+        <strong>redeploy</strong>. On the server, <code>CORS_ORIGIN</code> must include your static site URL (with
+        <code>https://</code>).
       </template>
       <template v-else>
-        לא ניתן להתחבר לשרת. הרץ את השרת במקביל ל־Vite:
+        Cannot reach the server. Run the API together with Vite:
         <code>npm run dev:full</code>
-        או בשני חלונות:
+        or in two terminals:
         <code>npm run server</code>
-        ו־
+        and
         <code>npm run dev</code>
         .
       </template>
     </p>
 
-    <section v-if="step === 'name'" class="elias-page__panel" dir="rtl">
-      <h2 class="elias-page__title">משחק אליאס</h2>
+    <section v-if="step === 'name'" class="elias-page__panel" dir="ltr" lang="en">
+      <h2 class="elias-page__title">Elias</h2>
       <label class="elias-page__field">
-        <span>שם להצגה</span>
+        <span>Display name</span>
         <input v-model="name" type="text" maxlength="32" autocomplete="nickname" @keydown.enter="onContinue" />
       </label>
-      <button type="button" class="elias-page__btn" @click="onContinue">המשך</button>
+      <button type="button" class="elias-page__btn" @click="onContinue">Continue</button>
     </section>
 
-    <section v-else-if="step === 'gate'" class="elias-page__panel" dir="rtl">
-      <h2 class="elias-page__title">התחברות לחדר</h2>
-      <p v-if="!connected" class="elias-page__muted">מתחבר לשרת…</p>
+    <section v-else-if="step === 'gate'" class="elias-page__panel" dir="ltr" lang="en">
+      <h2 class="elias-page__title">Join a room</h2>
+      <p v-if="!connected" class="elias-page__muted">Connecting to server…</p>
       <template v-else>
-        <button type="button" class="elias-page__btn" @click="onCreateRoom">צור חדר חדש</button>
+        <button type="button" class="elias-page__btn" @click="onCreateRoom">Create new room</button>
         <div class="elias-page__join">
           <label class="elias-page__field">
-            <span>קוד חדר</span>
-            <input v-model="joinCode" type="text" maxlength="8" autocomplete="off" placeholder="למשל ABC123" @keydown.enter="onJoinRoom" />
+            <span>Room code</span>
+            <input v-model="joinCode" type="text" maxlength="8" autocomplete="off" placeholder="e.g. ABC123" @keydown.enter="onJoinRoom" />
           </label>
-          <button type="button" class="elias-page__btn elias-page__btn-secondary" @click="onJoinRoom">הצטרף</button>
+          <button type="button" class="elias-page__btn elias-page__btn-secondary" @click="onJoinRoom">Join</button>
         </div>
       </template>
     </section>
 
-    <p v-else-if="step === 'room' && !room" class="elias-page__muted" dir="rtl">טוען חדר…</p>
+    <p v-else-if="step === 'room' && !room" class="elias-page__muted" dir="ltr">Loading room…</p>
     <EliasLobby
       v-else-if="step === 'room' && room && !room.game"
       :room="room"
@@ -70,6 +69,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, provide, ref } from 'vue'
 import { createEliasSocket } from '../services/eliasSocket.js'
+import { normalizeEliasErrorMessage } from '../services/eliasErrorMessages.js'
 import EliasLobby from '../cmps/elias/EliasLobby.vue'
 import EliasGame from '../cmps/elias/EliasGame.vue'
 
@@ -97,7 +97,7 @@ function onReturnToLobby() {
     send()
     return
   }
-  errorMsg.value = 'מתחבר לשרת…'
+  errorMsg.value = 'Connecting to server…'
   socket.once('connect', send)
   socket.connect()
 }
@@ -139,7 +139,7 @@ function onWordSecret({ word }) {
 }
 
 function onErrorMsg({ message }) {
-  errorMsg.value = message
+  errorMsg.value = normalizeEliasErrorMessage(message)
   window.setTimeout(() => {
     errorMsg.value = ''
   }, 5000)
@@ -186,7 +186,7 @@ function onCreateRoom() {
     if (res?.ok && res.playerId) {
       playerId.value = res.playerId
       step.value = 'room'
-    } else if (res?.error) errorMsg.value = res.error
+    } else if (res?.error) errorMsg.value = normalizeEliasErrorMessage(res.error)
   })
 }
 
@@ -197,7 +197,7 @@ function onJoinRoom() {
     if (res?.ok && res.playerId) {
       playerId.value = res.playerId
       step.value = 'room'
-    } else if (res?.error) errorMsg.value = res.error
+    } else if (res?.error) errorMsg.value = normalizeEliasErrorMessage(res.error)
   })
 }
 

@@ -1,15 +1,15 @@
 <template>
-  <section class="elias-lobby" dir="rtl">
+  <section class="elias-lobby" dir="ltr" lang="en">
     <header class="elias-lobby__header">
       <p class="elias-lobby__code">
-        קוד חדר: <strong>{{ room.code }}</strong>
+        Room code: <strong>{{ room.code }}</strong>
       </p>
-      <p v-if="isMaster" class="elias-lobby__hint">אתה מנהל החדר — הגדר זמן וניקוד והתחל כשכולם מוכנים.</p>
+      <p v-if="isMaster" class="elias-lobby__hint">You are the host — set turn length and target score, then start when everyone is ready.</p>
     </header>
 
     <div v-if="isMaster" class="elias-lobby__settings">
       <label class="elias-lobby__field">
-        <span>זמן לתור (שניות)</span>
+        <span>Turn length (seconds)</span>
         <input
           type="number"
           min="10"
@@ -19,7 +19,7 @@
         />
       </label>
       <label class="elias-lobby__field">
-        <span>ניקוד לניצחון</span>
+        <span>Score to win</span>
         <input
           type="number"
           min="1"
@@ -28,63 +28,63 @@
           @change="onSettingsTarget"
         />
       </label>
-      <button type="button" class="btn-random" @click="onRandomize">חלוקה אקראית</button>
+      <button type="button" class="btn-random" @click="onRandomize">Randomize teams</button>
     </div>
 
     <div class="elias-lobby__zones">
       <div class="elias-lobby__zone elias-lobby__zone--wait">
-        <h3 class="elias-lobby__zone-title">כניסה</h3>
+        <h3 class="elias-lobby__zone-title">Lobby</h3>
         <ul class="elias-lobby__list">
           <li v-for="p in unassigned" :key="p.id" class="elias-lobby__player">
             <span class="elias-lobby__avatar" aria-hidden="true">{{ avatarLetter(p.name) }}</span>
             <span class="elias-lobby__name">{{ p.name }}</span>
-            <span v-if="p.isMaster" class="elias-lobby__badge">מנהל</span>
+            <span v-if="p.isMaster" class="elias-lobby__badge">Host</span>
           </li>
-          <li v-if="unassigned.length === 0" class="elias-lobby__empty">אין שחקנים כאן</li>
+          <li v-if="unassigned.length === 0" class="elias-lobby__empty">No players here</li>
         </ul>
       </div>
 
       <div class="elias-lobby__zone elias-lobby__zone--red">
-        <h3 class="elias-lobby__zone-title">קבוצה אדומה</h3>
+        <h3 class="elias-lobby__zone-title">Red team</h3>
         <button
           type="button"
           class="btn-join btn-join--red"
           :disabled="!canPickTeam"
           @click="onJoinTeam('red')"
         >
-          הצטרף לאדומים
+          Join red
         </button>
         <ul class="elias-lobby__list">
           <li v-for="p in teamRed" :key="p.id" class="elias-lobby__player">
             <span class="elias-lobby__avatar" aria-hidden="true">{{ avatarLetter(p.name) }}</span>
             <span class="elias-lobby__name">{{ p.name }}</span>
-            <span v-if="p.isMaster" class="elias-lobby__badge">מנהל</span>
+            <span v-if="p.isMaster" class="elias-lobby__badge">Host</span>
           </li>
         </ul>
       </div>
 
       <div class="elias-lobby__zone elias-lobby__zone--blue">
-        <h3 class="elias-lobby__zone-title">קבוצה כחולה</h3>
+        <h3 class="elias-lobby__zone-title">Blue team</h3>
         <button
           type="button"
           class="btn-join btn-join--blue"
           :disabled="!canPickTeam"
           @click="onJoinTeam('blue')"
         >
-          הצטרף לכחולים
+          Join blue
         </button>
         <ul class="elias-lobby__list">
           <li v-for="p in teamBlue" :key="p.id" class="elias-lobby__player">
             <span class="elias-lobby__avatar" aria-hidden="true">{{ avatarLetter(p.name) }}</span>
             <span class="elias-lobby__name">{{ p.name }}</span>
-            <span v-if="p.isMaster" class="elias-lobby__badge">מנהל</span>
+            <span v-if="p.isMaster" class="elias-lobby__badge">Host</span>
           </li>
         </ul>
       </div>
     </div>
 
     <footer v-if="isMaster" class="elias-lobby__footer">
-      <button type="button" class="btn-start" @click="onStartGame">התחל משחק</button>
+      <button type="button" class="btn-start" @click="onStartGame">Start game</button>
     </footer>
   </section>
 </template>

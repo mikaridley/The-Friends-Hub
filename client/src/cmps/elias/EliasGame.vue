@@ -1,19 +1,19 @@
 <template>
-  <section class="elias-game" dir="rtl">
+  <section class="elias-game" dir="ltr" lang="en">
     <div class="elias-game__layout">
       <aside
         class="elias-game__side elias-game__side--red"
         :class="{ 'elias-game__side--turn-active': isSideTurnActive('red') }"
-        aria-label="קבוצה אדומה"
+        aria-label="Red team"
       >
-        <h3 class="elias-game__side-title">קבוצה אדומה</h3>
-        <p class="elias-game__side-score">{{ game.scores.red }} נק׳</p>
+        <h3 class="elias-game__side-title">Red team</h3>
+        <p class="elias-game__side-score">{{ game.scores.red }} pts</p>
         <div v-if="game.phase === 'playing'" class="elias-game__side-clue-box" aria-live="polite">
           <p v-if="game.currentTeam === 'red'" class="elias-game__side-clue-line">
-            <span class="elias-game__side-clue-label">מסביר עכשיו</span>
+            <span class="elias-game__side-clue-label">Clue giver</span>
             <span class="elias-game__side-clue-name">{{ clueGiverName }}</span>
           </p>
-          <p v-else class="elias-game__side-wait">תור הקבוצה הכחולה — ממתינים</p>
+          <p v-else class="elias-game__side-wait">Blue team’s turn — waiting</p>
         </div>
         <ul class="elias-game__roster">
           <li
@@ -24,7 +24,7 @@
           >
             <span class="elias-game__avatar" aria-hidden="true">{{ avatarLetter(p.name) }}</span>
             <span class="elias-game__roster-name">{{ p.name }}</span>
-            <span v-if="isClueGiverForTeam(p, 'red')" class="elias-game__clue-tag">מסביר עכשיו</span>
+            <span v-if="isClueGiverForTeam(p, 'red')" class="elias-game__clue-tag">Clue giver</span>
           </li>
         </ul>
       </aside>
@@ -32,21 +32,21 @@
       <div class="elias-game__main">
         <header class="elias-game__scores">
           <div class="elias-game__score elias-game__score--red">
-            <span class="elias-game__label">אדום</span>
+            <span class="elias-game__label">Red</span>
             <span class="elias-game__num">{{ game.scores.red }}</span>
           </div>
           <div class="elias-game__meta">
-            <span>יעד: {{ room.settings.targetScore }}</span>
+            <span>Goal: {{ room.settings.targetScore }}</span>
           </div>
           <div class="elias-game__score elias-game__score--blue">
-            <span class="elias-game__label">כחול</span>
+            <span class="elias-game__label">Blue</span>
             <span class="elias-game__num">{{ game.scores.blue }}</span>
           </div>
         </header>
 
         <div v-if="game.phase === 'finished'" class="elias-game__winner">
           <p class="elias-game__winner-text">
-           הקבוצה {{ winnerLabel }} ניצחה!
+            {{ winnerLabel }} wins!
           </p>
           <button
             v-if="isMaster"
@@ -54,43 +54,43 @@
             class="elias-game__btn-lobby"
             @click.stop="onReturnToLobby"
           >
-            חזרה ללובי
+            Back to lobby
           </button>
         </div>
 
         <div v-else class="elias-game__board">
           <p class="elias-game__turn">
-            תור הקבוצה: <strong>{{ currentTeamLabel }}</strong>
+            Current team: <strong>{{ currentTeamLabel }}</strong>
           </p>
           <p class="elias-game__clue">
-            מסביר: <strong>{{ clueGiverName }}</strong>
+            Clue giver: <strong>{{ clueGiverName }}</strong>
           </p>
 
           <p v-if="game.turnPhase === 'awaiting_start' && !isClueGiver" class="elias-game__wait">
-            המסביר ילחץ על «התחל את התור» כדי לראות את המילה ולהתחיל את הזמן.
+            The clue giver will press “Start turn” to see the word and start the timer.
           </p>
 
           <div v-if="isClueGiver" class="elias-game__clue-ui">
             <template v-if="game.turnPhase === 'awaiting_start'">
-              <button type="button" class="btn-go" @click="onStartTurn">התחל את התור</button>
+              <button type="button" class="btn-go" @click="onStartTurn">Start turn</button>
             </template>
             <template v-else-if="game.turnPhase === 'running'">
-              <p class="elias-game__timer" aria-live="polite">נותרו: {{ timeLeftLabel }}</p>
-              <p v-if="secretWord" class="elias-game__word">{{ secretWord }}</p>
-              <p v-else class="elias-game__word-muted">טוען מילה…</p>
+              <p class="elias-game__timer" aria-live="polite">Time left: {{ timeLeftLabel }}</p>
+              <p v-if="secretWord" class="elias-game__word" dir="auto" lang="he">{{ secretWord }}</p>
+              <p v-else class="elias-game__word-muted">Loading word…</p>
               <div class="elias-game__actions">
-                <button type="button" class="btn-guess" @click="onWord('guessed')">נוחש</button>
-                <button type="button" class="btn-pass" @click="onWord('pass')">פספוס</button>
+                <button type="button" class="btn-guess" @click="onWord('guessed')">Guessed</button>
+                <button type="button" class="btn-pass" @click="onWord('pass')">Pass</button>
               </div>
               <p class="elias-game__round-stats">
-                סיבוב זה: ניחושים {{ game.guessedThisTurn }} · פספוסים {{ game.passThisTurn }}
+                This round: guessed {{ game.guessedThisTurn }} · passed {{ game.passThisTurn }}
               </p>
             </template>
           </div>
 
           <div v-if="!isClueGiver && game.turnPhase === 'running'" class="elias-game__spectator">
-            <p class="elias-game__timer">זמן: {{ timeLeftLabel }}</p>
-            <p class="elias-game__spectator-hint">המילה נסתרת מהמסביר בלבד.</p>
+            <p class="elias-game__timer">Time: {{ timeLeftLabel }}</p>
+            <p class="elias-game__spectator-hint">Only the clue giver sees the word.</p>
           </div>
         </div>
       </div>
@@ -98,16 +98,16 @@
       <aside
         class="elias-game__side elias-game__side--blue"
         :class="{ 'elias-game__side--turn-active': isSideTurnActive('blue') }"
-        aria-label="קבוצה כחולה"
+        aria-label="Blue team"
       >
-        <h3 class="elias-game__side-title">קבוצה כחולה</h3>
-        <p class="elias-game__side-score">{{ game.scores.blue }} נק׳</p>
+        <h3 class="elias-game__side-title">Blue team</h3>
+        <p class="elias-game__side-score">{{ game.scores.blue }} pts</p>
         <div v-if="game.phase === 'playing'" class="elias-game__side-clue-box" aria-live="polite">
           <p v-if="game.currentTeam === 'blue'" class="elias-game__side-clue-line">
-            <span class="elias-game__side-clue-label">מסביר עכשיו</span>
+            <span class="elias-game__side-clue-label">Clue giver</span>
             <span class="elias-game__side-clue-name">{{ clueGiverName }}</span>
           </p>
-          <p v-else class="elias-game__side-wait">תור הקבוצה האדומה — ממתינים</p>
+          <p v-else class="elias-game__side-wait">Red team’s turn — waiting</p>
         </div>
         <ul class="elias-game__roster">
           <li
@@ -118,7 +118,7 @@
           >
             <span class="elias-game__avatar" aria-hidden="true">{{ avatarLetter(p.name) }}</span>
             <span class="elias-game__roster-name">{{ p.name }}</span>
-            <span v-if="isClueGiverForTeam(p, 'blue')" class="elias-game__clue-tag">מסביר עכשיו</span>
+            <span v-if="isClueGiverForTeam(p, 'blue')" class="elias-game__clue-tag">Clue giver</span>
           </li>
         </ul>
       </aside>
@@ -196,9 +196,9 @@ const clueGiverName = computed(() => {
   return p?.name || '—'
 })
 
-const currentTeamLabel = computed(() => (props.room.game?.currentTeam === 'red' ? 'אדומה' : 'כחולה'))
+const currentTeamLabel = computed(() => (props.room.game?.currentTeam === 'red' ? 'Red' : 'Blue'))
 
-const winnerLabel = computed(() => (props.room.game?.winner === 'red' ? 'האדומה' : 'הכחולה'))
+const winnerLabel = computed(() => (props.room.game?.winner === 'red' ? 'Red team' : 'Blue team'))
 
 const timeLeftMs = computed(() => {
   const end = props.room.game?.turnEndsAt
